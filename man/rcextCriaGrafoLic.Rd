@@ -4,7 +4,7 @@
 \alias{rcextCriaGrafoLic}
 \title{Cria um grafo de vencedores e participantes de licitacoes publicas}
 \usage{
-rcextCriaGrafoLic(dados, tipo_retorno = 0)
+rcextCriaGrafoLic(dados, tipo_retorno = 0, considerar_desconto = T)
 }
 \arguments{
 \item{dados}{data.frame contendo as seguintes colunas:
@@ -16,6 +16,11 @@ rcextCriaGrafoLic(dados, tipo_retorno = 0)
         a empresa esteja concorrendo. Caso o objeto da licitacao nao tenha sido dividido em itens, este campo
         \item VENCEDOR coluna do tipo \code{logical} contendo um valor booleano indicando se o licitante foi
         vitorioso no certame.
+        \item VALOR_ESTIMADO coluna do tipo \code{numeric} correspondente ao valor estimado para o objeto ou
+        serviço sendo licitado. Podera assumir o valor NA caso tal informacao nai esteja disponivel.
+        \item VALOR_HOMOLOGADO coluna do tipo \code{numeric} correspondente ao valor homologado da proposta
+        vencedora para o fornecimento do objeto ou serviço sendo licitado. Podera assumir o valor NA caso tal
+        informacao nai esteja disponivel.
 }}
 
 \item{tipo_retorno}{especifica o objeto a ser retornado pela funcao. As opcoes sao as que se seguem:
@@ -27,6 +32,10 @@ rcextCriaGrafoLic(dados, tipo_retorno = 0)
         \item 2 retorna um objeto do tipo \code{data.frame} a partir do qual poderá ser criado um grafo
          por meio da funcao \code{igraph::graph.data.frame()}
          }}
+
+\item{considerar_desconto}{parametro do tipo \code{logical} indicando se o desconto obtido (diferenca entre o valor
+homologado e o valor estimado) devera ser levado em consideracao na atribuicao dos pesos das relacoes perdedor-vencedor.
+Por padrao este parametro tem valor \code{TRUE}}
 }
 \value{
 o retorno depende do valor especificado para o parâmetro \code{tipo_retorno}.
@@ -40,11 +49,15 @@ da seguinte forma:
          relacoes do tipo “perdedor-vencedor”. Tal relacao e representada por uma aresta
          que se inicia em no representativo da empresa participante perdedora para um no
          representativo da licitante vencedora.
+        \item o desconto ofertado (diferenca entre o valor estimado e o valor homologado)
+        podera influenciar, de forma inversamente proporcional, o peso das relacoes
+        perdedor-vencedor. Quanto menor o desconto ofertado pelo vencedor, maior sera o peso
+        da referida relacao.
 }
 }
 \examples{
 \dontrun{
-grafoLic <- rcextCriaGrafoLic(dados = dfDadosLic, tipo_retorno = 0)
+grafoLic <- rcextCriaGrafoLic(dados = dfDadosLic, tipo_retorno = 0, considerar_desconto = F)
 }
 }
 \author{
