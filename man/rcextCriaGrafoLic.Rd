@@ -26,7 +26,7 @@ rcextCriaGrafoLic(dados, tipo_retorno = 0, considerar_desconto = T)
 \item{tipo_retorno}{especifica o objeto a ser retornado pela funcao. As opcoes sao as que se seguem:
 \itemize{
         \item 0 retorna um objeto do tipo \code{environment}, contendo um objeto do tipo \code{igraph}
-         (igGrafo) e um \code{data.frame} (dfGrafo) a partir do qual o mesmo foi criado. E o valor padrao;
+         (grLicitacoes) e um \code{data.frame} (dfLicitacoes) a partir do qual o mesmo foi criado. E o valor padrao;
         \item 1 retorna um objeto do tipo \code{igraph} contendo um grafo direcionado de vencedores e participantes
          de licitacoes;
         \item 2 retorna um objeto do tipo \code{data.frame} a partir do qual poderá ser criado um grafo

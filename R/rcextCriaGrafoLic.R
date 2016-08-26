@@ -31,7 +31,7 @@
 #' @param tipo_retorno especifica o objeto a ser retornado pela funcao. As opcoes sao as que se seguem:
 #' \itemize{
 #'         \item 0 retorna um objeto do tipo \code{environment}, contendo um objeto do tipo \code{igraph}
-#'          (igGrafo) e um \code{data.frame} (dfGrafo) a partir do qual o mesmo foi criado. E o valor padrao;
+#'          (grLicitacoes) e um \code{data.frame} (dfLicitacoes) a partir do qual o mesmo foi criado. E o valor padrao;
 #'         \item 1 retorna um objeto do tipo \code{igraph} contendo um grafo direcionado de vencedores e participantes
 #'          de licitacoes;
 #'         \item 2 retorna um objeto do tipo \code{data.frame} a partir do qual poderá ser criado um grafo
@@ -59,7 +59,7 @@ rcextCriaGrafoLic <- function(dados, tipo_retorno = 0, considerar_desconto = T) 
 
   envGrafo <- new.env(parent = emptyenv())
 
-  envGrafo$dfGrafo <- sqldf::sqldf(
+  envGrafo$dfLicitacoes <- sqldf::sqldf(
     'SELECT DISTINCT
           dfPERDEDOR.CNPJ CNPJ_PERDEDOR,
           dfVENCEDOR.CNPJ CNPJ_VENCEDOR,
@@ -78,26 +78,26 @@ rcextCriaGrafoLic <- function(dados, tipo_retorno = 0, considerar_desconto = T) 
 
   if (considerar_desconto){
     # retira registros que nao possaum valores estimados e valores homologados
-    envGrafo$dfGrafo <- envGrafo$dfGrafo[complete.cases(envGrafo$dfGrafo[, c("VALOR_ESTIMADO", "VALOR_HOMOLOGADO")]),]
+    envGrafo$dfLicitacoes <- envGrafo$dfLicitacoes[complete.cases(envGrafo$dfLicitacoes[, c("VALOR_ESTIMADO", "VALOR_HOMOLOGADO")]),]
 
     # calcula peso da relacao perdedor-vencedor
-    envGrafo$dfGrafo$PESO_RELACAO <- envGrafo$dfGrafo$VALOR_HOMOLOGADO/envGrafo$dfGrafo$VALOR_ESTIMADO
+    envGrafo$dfLicitacoes$PESO_RELACAO <- envGrafo$dfLicitacoes$VALOR_HOMOLOGADO/envGrafo$dfLicitacoes$VALOR_ESTIMADO
 
     # retira registros cujos pesos calculados sejam outliers
-    tukey <- fivenum(envGrafo$dfGrafo$PESO_RELACAO)
+    tukey <- fivenum(envGrafo$dfLicitacoes$PESO_RELACAO)
     Q3 <- tukey[4]
     Q1 <- tukey[2]
-    envGrafo$dfGrafo <- envGrafo$dfGrafo[envGrafo$dfGrafo$PESO_RELACAO < (Q3 + 1.5*(Q3-Q1)),]
+    envGrafo$dfLicitacoes <- envGrafo$dfLicitacoes[envGrafo$dfLicitacoes$PESO_RELACAO < (Q3 + 1.5*(Q3-Q1)),]
 
   } else{
-    envGrafo$dfGrafo$PESO_RELACAO <- 1
+    envGrafo$dfLicitacoes$PESO_RELACAO <- 1
   }
 
-  envGrafo$igGrafo <- igraph::graph.data.frame(
+  envGrafo$grLicitacoes <- igraph::graph.data.frame(
     data.frame(
-      from = envGrafo$dfGrafo[, "CNPJ_PERDEDOR"],
-      to = envGrafo$dfGrafo[, "CNPJ_VENCEDOR"],
-      weight = envGrafo$dfGrafo[, "PESO_RELACAO"]
+      from = envGrafo$dfLicitacoes[, "CNPJ_PERDEDOR"],
+      to = envGrafo$dfLicitacoes[, "CNPJ_VENCEDOR"],
+      weight = envGrafo$dfLicitacoes[, "PESO_RELACAO"]
     )
   )
 
