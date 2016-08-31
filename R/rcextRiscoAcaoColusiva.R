@@ -33,6 +33,10 @@ rcextRiscoAcaoColusiva <- function(grLicitacoes) {
   # inicializa o vetor que ira conter as empresas suspeitas de pratica colusiva
   e$vcEmpresasRisco <- numeric()
 
+  # cria um environment para as ser utilizado como uma estrutura do tipo map para armazenar os page
+  # ranks das empresas num dado mercado cujo identificador sera utilizado como key
+  e$mapPageRanks <- new.env(parent = emptyenv())
+
   # selecao de empresas a partir do page rank intra-comunitario
   sapply(sort(unique(igraph::membership(wc))), function(g) {
 
@@ -43,13 +47,25 @@ rcextRiscoAcaoColusiva <- function(grLicitacoes) {
     subg<-igraph::induced.subgraph(grLicitacoes, empresas_comunidade_g)
 
     # calcula page rank intracomunitario
-    pr <- sort(igraph::page.rank(subg)$vector, decreasing = T)
+    pr <- igraph::page.rank(subg)$vector
+
+    # determina o rearranjo necessario para ordenar as empresas em ordem decrescente de page rank
+    ordem_dec <- order(pr, decreasing = T)
+
+    # reordena de forma decrescente o vetor de page ranks
+    pr <- pr[ordem_dec]
+
+    # reordena de forma decrescente o vetor de empresas que pertencem a comunidade g
+    empresas_comunidade_g <- empresas_comunidade_g[ordem_dec]
+
+    # armazena o vetor de page ranks no environment e
+    eval(parse(text = paste("e$mapPageRank$'", "' <- pr", sep = as.character(g))))
 
     # seleciona as empresas de maior page_rank até que o rank acumulado seja de 0.6
     selec_emp <- cumsum(pr)<.6
 
-    # o numero de empresas acima selecionadas não devera ultrapassar 30% do total
-    max_emp <- ceiling(0.3*length(pr))
+    # o numero de empresas acima selecionadas não devera ultrapassar 30% do total ou 20 empresas
+    max_emp <- min(ceiling(0.3*length(pr)), 20)
 
     # ... nem ser inferior a 5
     min_emp <- 5
