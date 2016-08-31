@@ -59,7 +59,7 @@ rcextRiscoAcaoColusiva <- function(grLicitacoes) {
     empresas_comunidade_g <- empresas_comunidade_g[ordem_dec]
 
     # armazena o vetor de page ranks no environment e
-    eval(parse(text = paste("e$mapPageRank$'", "' <- pr", sep = as.character(g))))
+    eval(parse(text = paste("e$mapPageRanks$'", "' <- pr", sep = as.character(g))))
 
     # seleciona as empresas de maior page_rank até que o rank acumulado seja de 0.6
     selec_emp <- cumsum(pr)<.6
