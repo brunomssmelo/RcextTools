@@ -15,16 +15,16 @@
 #' }
 #' @param dados data.frame contendo as seguintes colunas:
 #' \itemize{
-#'         \item CNPJ coluna do tipo \code{character} contendo cnpj, com 14 caracteres (sem .,-, ou /),
+#'         \item \string{CNPJ} coluna do tipo \code{character} contendo cnpj, com 14 caracteres (sem .,-, ou /),
 #'          da empresa participante do certame;
-#'         \item ID_LICITACAO coluna do tipo \code{character} que identifica de forma unica o certame;
-#'         \item ID_ITEM coluna do tipo \code{character} que identifica de forma unica o item do objeto a que
+#'         \item \string{ID_LICITACAO} coluna do tipo \code{character} que identifica de forma unica o certame;
+#'         \item \string{ID_ITEM} coluna do tipo \code{character} que identifica de forma unica o item do objeto a que
 #'         a empresa esteja concorrendo. Caso o objeto da licitacao nao tenha sido dividido em itens, este campo
-#'         \item VENCEDOR coluna do tipo \code{logical} contendo um valor booleano indicando se o licitante foi
+#'         \item \string{VENCEDOR} coluna do tipo \code{logical} contendo um valor booleano indicando se o licitante foi
 #'         vitorioso no certame.
-#'         \item VALOR_ESTIMADO coluna do tipo \code{numeric} correspondente ao valor estimado para o objeto ou
+#'         \item \string{VALOR_ESTIMADO} coluna do tipo \code{numeric} correspondente ao valor estimado para o objeto ou
 #'         serviço sendo licitado. Podera assumir o valor NA caso tal informacao nai esteja disponivel.
-#'         \item VALOR_HOMOLOGADO coluna do tipo \code{numeric} correspondente ao valor homologado da proposta
+#'         \item \string{VALOR_HOMOLOGADO} coluna do tipo \code{numeric} correspondente ao valor homologado da proposta
 #'         vencedora para o fornecimento do objeto ou serviço sendo licitado. Podera assumir o valor NA caso tal
 #'         informacao nai esteja disponivel.
 #' }
@@ -77,17 +77,18 @@ rcextCriaGrafoLic <- function(dados, tipo_retorno = 0, considerar_desconto = T) 
   )
 
   if (considerar_desconto){
-    # retira registros que nao possaum valores estimados e valores homologados
+    # retira registros que nao possuam valores estimados e valores homologados
     envGrafo$dfLicitacoes <- envGrafo$dfLicitacoes[complete.cases(envGrafo$dfLicitacoes[, c("VALOR_ESTIMADO", "VALOR_HOMOLOGADO")]),]
 
     # calcula peso da relacao perdedor-vencedor
     envGrafo$dfLicitacoes$PESO_RELACAO <- envGrafo$dfLicitacoes$VALOR_HOMOLOGADO/envGrafo$dfLicitacoes$VALOR_ESTIMADO
 
-    # retira registros cujos pesos calculados sejam outliers
-    tukey <- fivenum(envGrafo$dfLicitacoes$PESO_RELACAO)
-    Q3 <- tukey[4]
-    Q1 <- tukey[2]
-    envGrafo$dfLicitacoes <- envGrafo$dfLicitacoes[envGrafo$dfLicitacoes$PESO_RELACAO < (Q3 + 1.5*(Q3-Q1)),]
+    # Melhor fazer isso mercado a mercado (noutro momento)
+    # # retira registros cujos pesos calculados sejam outliers
+    # tukey <- fivenum(envGrafo$dfLicitacoes$PESO_RELACAO)
+    # Q3 <- tukey[4]
+    # Q1 <- tukey[2]
+    # envGrafo$dfLicitacoes <- envGrafo$dfLicitacoes[envGrafo$dfLicitacoes$PESO_RELACAO < (Q3 + 1.5*(Q3-Q1)),]
 
   } else{
     envGrafo$dfLicitacoes$PESO_RELACAO <- 1

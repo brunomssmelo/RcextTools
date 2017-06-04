@@ -3,10 +3,10 @@
 #'          de licitacoes;
 #' @return objeto do tipo environment, contendo os seguintes objetos:
 #' \itemize{
-#'         \item mercados objeto do tipo \code{community} contendo todos as comunidades (mercados) obtidas a partir do grafo \code{grLicitacoes};
-#'         \item grMercadosRisco grafo do tipo \item{igraph} contendo os mercados de risco extraidos do grafo \code{grLicitacoes};
-#'         \item vcMercadosRisco vetor do tipo \code{numeric()} contendo os identificadores dos mercados considerados de risco;
-#'         \item vcEmpresasRisco vetor do tipo \code{numeric()} contendo os identificadores dos mercados de risco a que pertencem as empresas
+#'         \item \strong{mercados} objeto do tipo \code{community} contendo todos as comunidades (mercados) obtidas a partir do grafo \code{grLicitacoes};
+#'         \item \strong{grMercadosRisco} grafo do tipo \code{igraph} contendo os mercados de risco extraidos do grafo \code{grLicitacoes};
+#'         \item \strong{vcMercadosRisco} vetor do tipo \code{numeric()} contendo os identificadores dos mercados considerados de risco;
+#'         \item \strong{vcEmpresasRisco} vetor do tipo \code{numeric()} contendo os identificadores dos mercados de risco a que pertencem as empresas
 #'               consideradas suspeitas de praticarem acoes colusivas. As empresas sao identificadas pelo atributo \code{names}.
 #'          }
 #' @author Bruno M. S. S. Melo
@@ -58,9 +58,6 @@ rcextRiscoAcaoColusiva <- function(grLicitacoes) {
     # reordena de forma decrescente o vetor de empresas que pertencem a comunidade g
     empresas_comunidade_g <- empresas_comunidade_g[ordem_dec]
 
-    # armazena o vetor de page ranks no environment e
-    eval(parse(text = paste("e$mapPageRanks$'", "' <- pr", sep = as.character(g))))
-
     # seleciona as empresas de maior page_rank até que o rank acumulado seja de 0.6
     selec_emp <- cumsum(pr)<.6
 
@@ -74,6 +71,9 @@ rcextRiscoAcaoColusiva <- function(grLicitacoes) {
 
       # insere a comunidade (mercado) na listagem de mercados de risco
       e$vcMercadosRisco <- c(e$vcMercadosRisco, g)
+
+      # armazena o vetor de page ranks no environment e
+      eval(parse(text = paste("e$mapPageRanks$'", "' <- pr", sep = as.character(g))))
 
       # atualiza o vetor de empresas suspeitas
       vcEmpresasRisco <- rep(g, sum(selec_emp))

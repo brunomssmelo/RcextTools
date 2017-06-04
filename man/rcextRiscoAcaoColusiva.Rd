@@ -13,10 +13,10 @@ de licitacoes;}
 \value{
 objeto do tipo environment, contendo os seguintes objetos:
 \itemize{
-        \item mercados objeto do tipo \code{community} contendo todos as comunidades (mercados) obtidas a partir do grafo \code{grLicitacoes};
-        \item grMercadosRisco grafo do tipo \item{igraph} contendo os mercados de risco extraidos do grafo \code{grLicitacoes};
-        \item vcMercadosRisco vetor do tipo \code{numeric()} contendo os identificadores dos mercados considerados de risco;
-        \item vcEmpresasRisco vetor do tipo \code{numeric()} contendo os identificadores dos mercados de risco a que pertencem as empresas
+        \item \strong{mercados} objeto do tipo \code{community} contendo todos as comunidades (mercados) obtidas a partir do grafo \code{grLicitacoes};
+        \item \strong{grMercadosRisco} grafo do tipo \code{igraph} contendo os mercados de risco extraidos do grafo \code{grLicitacoes};
+        \item \strong{vcMercadosRisco} vetor do tipo \code{numeric()} contendo os identificadores dos mercados considerados de risco;
+        \item \strong{vcEmpresasRisco} vetor do tipo \code{numeric()} contendo os identificadores dos mercados de risco a que pertencem as empresas
               consideradas suspeitas de praticarem acoes colusivas. As empresas sao identificadas pelo atributo \code{names}.
          }
 }
@@ -28,10 +28,9 @@ Identifica potencias mercados de risco de praticas colusivas a partir de grafo d
 grafoLic <- rcextAcaoColusivaLic(grLicitacoes)
 }
 }
-\author{
-Bruno M. S. S. Melo
-}
 \seealso{
 \code{igraph}
 }
-
+\author{
+Bruno M. S. S. Melo
+}
