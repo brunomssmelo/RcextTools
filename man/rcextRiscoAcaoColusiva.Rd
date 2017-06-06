@@ -4,7 +4,7 @@
 \alias{rcextRiscoAcaoColusiva}
 \title{Identifica potencias mercados de risco de praticas colusivas a partir de grafo de licitacoes}
 \usage{
-rcextRiscoAcaoColusiva(dados, considerar_desconto = T)
+rcextRiscoAcaoColusiva(dados, considerar_desconto = F)
 }
 \arguments{
 \item{dados}{data.frame contendo as seguintes colunas:

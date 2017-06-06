@@ -1,4 +1,4 @@
-#' Identifica potencias mercados de risco de praticas colusivas a partir de grafo de licitacoes
+#' Identifica potenciais mercados de risco de praticas colusivas a partir de grafo de licitacoes
 #' @param dados data.frame contendo as seguintes colunas:
 #' \itemize{
 #'         \item \strong{CNPJ} coluna do tipo \code{character} contendo cnpj, com 14 caracteres (sem .,-, ou /),
@@ -33,7 +33,7 @@
 #' }
 #' @seealso \code{igraph}
 #' @export
-rcextRiscoAcaoColusiva <- function(dados, considerar_desconto = T) {
+rcextRiscoAcaoColusiva <- function(dados, considerar_desconto = F) {
 
   library(data.table)
   dados <- data.table(dados)
