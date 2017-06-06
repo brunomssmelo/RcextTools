@@ -1,14 +1,31 @@
 #' Identifica potencias mercados de risco de praticas colusivas a partir de grafo de licitacoes
-#' @param grLicitacoes objeto do tipo \code{igraph} contendo um grafo direcionado de vencedores e participantes
-#'          de licitacoes;
+#' @param dados data.frame contendo as seguintes colunas:
+#' \itemize{
+#'         \item \strong{CNPJ} coluna do tipo \code{character} contendo cnpj, com 14 caracteres (sem .,-, ou /),
+#'          da empresa participante do certame;
+#'         \item \strong{ID_LICITACAO} coluna do tipo \code{character} que identifica de forma unica o certame;
+#'         \item \strong{ID_ITEM} coluna do tipo \code{character} que identifica de forma unica o item do objeto a que
+#'         a empresa esteja concorrendo. Caso o objeto da licitacao nao tenha sido dividido em itens, este campo
+#'         \item \strong{VENCEDOR} coluna do tipo \code{logical} contendo um valor booleano indicando se o licitante foi
+#'         vitorioso no certame.
+#'         \item \strong{VALOR_ESTIMADO} coluna do tipo \code{numeric} correspondente ao valor estimado para o objeto ou
+#'         serviço sendo licitado. Podera assumir o valor NA caso tal informacao nai esteja disponivel.
+#'         \item \strong{VALOR_HOMOLOGADO} coluna do tipo \code{numeric} correspondente ao valor homologado da proposta
+#'         vencedora para o fornecimento do objeto ou serviço sendo licitado. Podera assumir o valor NA caso tal
+#'         informacao nai esteja disponivel.
+#'         }
+#' @param considerar_desconto parametro do tipo \code{logical} indicando se o desconto obtido (diferenca entre o valor
+#' homologado e o valor estimado) devera ser levado em consideracao na atribuicao dos pesos das relacoes perdedor-vencedor.
+#' Por padrao este parametro tem valor \code{TRUE}
 #' @return objeto do tipo environment, contendo os seguintes objetos:
 #' \itemize{
-#'         \item \strong{mercados} objeto do tipo \code{community} contendo todos as comunidades (mercados) obtidas a partir do grafo \code{grLicitacoes};
+#'         \item \strong{cmMercados} objeto do tipo \code{community} contendo todos as comunidades (mercados) obtidas a partir do grafo \code{grLicitacoes};
 #'         \item \strong{grMercadosRisco} grafo do tipo \code{igraph} contendo os mercados de risco extraidos do grafo \code{grLicitacoes};
 #'         \item \strong{vcMercadosRisco} vetor do tipo \code{numeric()} contendo os identificadores dos mercados considerados de risco;
 #'         \item \strong{vcEmpresasRisco} vetor do tipo \code{numeric()} contendo os identificadores dos mercados de risco a que pertencem as empresas
 #'               consideradas suspeitas de praticarem acoes colusivas. As empresas sao identificadas pelo atributo \code{names}.
-#'          }
+#'         \item \strong{dfResultados} objeto do tipo \code{data.frame} contendo os contratos considerados como suspeitos.
+#'         }
 #' @author Bruno M. S. S. Melo
 #' @examples
 #' \dontrun{
@@ -16,78 +33,47 @@
 #' }
 #' @seealso \code{igraph}
 #' @export
-rcextRiscoAcaoColusiva <- function(grLicitacoes) {
+rcextRiscoAcaoColusiva <- function(dados, considerar_desconto = T) {
 
-  e <- new.env(parent = emptyenv())
+  library(data.table)
+  dados <- data.table(dados)
 
-  # identifica "comunidades" (mercados)
-  wc <- igraph::walktrap.community(grLicitacoes)
+  # Geracao do grafo para ser analisado
+  grafo <- rcextCriaGrafoLic(dados, 0, considerar_desconto)
 
-  # inclui no environment "e" uma copia do grafo "grLicitacoes" a partir da qual sera construido
-  # o grafo contendo unicamente as comunidades correspondentes a "mercados de risco"
-  e$grMercadosRisco <- grLicitacoes
+  # Identificacao de empresas e "mercados" de maior risco de acao colusiva
+  e <- rcextRiscoAcaoColusivaAux(grafo$grLicitacoes)
 
-  # inicializa o vetor que ira conter as comunidades (mercados) consideradas como "de risco"
-  e$vcMercadosRisco <- numeric()
+  # Funcao auxiliar para converter valor em moeda
+  numericoParaTextoMoeda <- function(x){
+    paste0("R$",
+           formatC(as.numeric(x),
+                   format="f",
+                   digits=2,
+                   big.mark=".",
+                   decimal.mark = ",")
+    )
+  }
 
-  # inicializa o vetor que ira conter as empresas suspeitas de pratica colusiva
-  e$vcEmpresasRisco <- numeric()
+  # Ordena resultados por mercado de atuacao e materialidade (valor homologado)
+  dtResultados <- dados[VENCEDOR == T & CNPJ %in% names(e$vcEmpresasRisco),]
 
-  # cria um environment para as ser utilizado como uma estrutura do tipo map para armazenar os page
-  # ranks das empresas num dado mercado cujo identificador sera utilizado como key
-  e$mapPageRanks <- new.env(parent = emptyenv())
-
-  # selecao de empresas a partir do page rank intra-comunitario
-  sapply(sort(unique(igraph::membership(wc))), function(g) {
-
-    # empresas que pertencem a comunidade g (mercado)
-    empresas_comunidade_g <- which(igraph::membership(wc)==g)
-
-    # extrai subgrafo correspondente a comunidade g
-    subg<-igraph::induced.subgraph(grLicitacoes, empresas_comunidade_g)
-
-    # calcula page rank intracomunitario
-    pr <- igraph::page.rank(subg)$vector
-
-    # determina o rearranjo necessario para ordenar as empresas em ordem decrescente de page rank
-    ordem_dec <- order(pr, decreasing = T)
-
-    # reordena de forma decrescente o vetor de page ranks
-    pr <- pr[ordem_dec]
-
-    # reordena de forma decrescente o vetor de empresas que pertencem a comunidade g
-    empresas_comunidade_g <- empresas_comunidade_g[ordem_dec]
-
-    # seleciona as empresas de maior page_rank até que o rank acumulado seja de 0.6
-    selec_emp <- cumsum(pr)<.6
-
-    # o numero de empresas acima selecionadas não devera ultrapassar 30% do total ou 20 empresas
-    max_emp <- min(ceiling(0.3*length(pr)), 20)
-
-    # ... nem ser inferior a 5
-    min_emp <- 5
-
-    if ((sum(selec_emp) <= max_emp) & (sum(selec_emp) >= min_emp)) {
-
-      # insere a comunidade (mercado) na listagem de mercados de risco
-      e$vcMercadosRisco <- c(e$vcMercadosRisco, g)
-
-      # armazena o vetor de page ranks no environment e
-      eval(parse(text = paste("e$mapPageRanks$'", "' <- pr", sep = as.character(g))))
-
-      # atualiza o vetor de empresas suspeitas
-      vcEmpresasRisco <- rep(g, sum(selec_emp))
-      names(vcEmpresasRisco) <- wc$names[empresas_comunidade_g[selec_emp]]
-      e$vcEmpresasRisco <- c(e$vcEmpresasRisco, vcEmpresasRisco)
-    } else {
-      # retira todo o subgrafo (comunidade) do grafo principal
-      e$grMercadosRisco <- igraph::delete.vertices(
-        e$grMercadosRisco,
-        wc$names[empresas_comunidade_g])
+  dtResultados$MERCADO_ATUACAO <- apply(
+    X = dtResultados,
+    MARGIN = 1,
+    FUN = function(contratos, empresas = e$vcEmpresasRisco){
+      empresas[contratos['CNPJ'] == names(empresas)]
     }
-  })
+  )
 
-  e$mercados <- wc
+  # Ordena resultados por mercado de atuação e materialidade
+  dtResultados <- dtResultados[order(MERCADO_ATUACAO,-VALOR_HOMOLOGADO)]
+
+  dtResultados$TEXTO_VALOR_HOMOLOGADO <- NA_character_
+  dtResultados[!is.na(VALOR_HOMOLOGADO),]$TEXTO_VALOR_HOMOLOGADO <- numericoParaTextoMoeda(dtResultados$VALOR_HOMOLOGADO)
+  dtResultados <- unique(dtResultados)
+
+  e$dtResultados <- dtResultados
 
   return(e)
 }

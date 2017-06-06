@@ -9,16 +9,16 @@ rcextCriaGrafoLic(dados, tipo_retorno = 0, considerar_desconto = T)
 \arguments{
 \item{dados}{data.frame contendo as seguintes colunas:
 \itemize{
-        \item \string{CNPJ} coluna do tipo \code{character} contendo cnpj, com 14 caracteres (sem .,-, ou /),
+        \item \strong{CNPJ} coluna do tipo \code{character} contendo cnpj, com 14 caracteres (sem .,-, ou /),
          da empresa participante do certame;
-        \item \string{ID_LICITACAO} coluna do tipo \code{character} que identifica de forma unica o certame;
-        \item \string{ID_ITEM} coluna do tipo \code{character} que identifica de forma unica o item do objeto a que
+        \item \strong{ID_LICITACAO} coluna do tipo \code{character} que identifica de forma unica o certame;
+        \item \strong{ID_ITEM} coluna do tipo \code{character} que identifica de forma unica o item do objeto a que
         a empresa esteja concorrendo. Caso o objeto da licitacao nao tenha sido dividido em itens, este campo
-        \item \string{VENCEDOR} coluna do tipo \code{logical} contendo um valor booleano indicando se o licitante foi
+        \item \strong{VENCEDOR} coluna do tipo \code{logical} contendo um valor booleano indicando se o licitante foi
         vitorioso no certame.
-        \item \string{VALOR_ESTIMADO} coluna do tipo \code{numeric} correspondente ao valor estimado para o objeto ou
+        \item \strong{VALOR_ESTIMADO} coluna do tipo \code{numeric} correspondente ao valor estimado para o objeto ou
         serviço sendo licitado. Podera assumir o valor NA caso tal informacao nai esteja disponivel.
-        \item \string{VALOR_HOMOLOGADO} coluna do tipo \code{numeric} correspondente ao valor homologado da proposta
+        \item \strong{VALOR_HOMOLOGADO} coluna do tipo \code{numeric} correspondente ao valor homologado da proposta
         vencedora para o fornecimento do objeto ou serviço sendo licitado. Podera assumir o valor NA caso tal
         informacao nai esteja disponivel.
 }}

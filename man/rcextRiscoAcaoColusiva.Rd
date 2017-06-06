@@ -4,21 +4,39 @@
 \alias{rcextRiscoAcaoColusiva}
 \title{Identifica potencias mercados de risco de praticas colusivas a partir de grafo de licitacoes}
 \usage{
-rcextRiscoAcaoColusiva(grLicitacoes)
+rcextRiscoAcaoColusiva(dados, considerar_desconto = T)
 }
 \arguments{
-\item{grLicitacoes}{objeto do tipo \code{igraph} contendo um grafo direcionado de vencedores e participantes
-de licitacoes;}
+\item{dados}{data.frame contendo as seguintes colunas:
+\itemize{
+        \item \strong{CNPJ} coluna do tipo \code{character} contendo cnpj, com 14 caracteres (sem .,-, ou /),
+         da empresa participante do certame;
+        \item \strong{ID_LICITACAO} coluna do tipo \code{character} que identifica de forma unica o certame;
+        \item \strong{ID_ITEM} coluna do tipo \code{character} que identifica de forma unica o item do objeto a que
+        a empresa esteja concorrendo. Caso o objeto da licitacao nao tenha sido dividido em itens, este campo
+        \item \strong{VENCEDOR} coluna do tipo \code{logical} contendo um valor booleano indicando se o licitante foi
+        vitorioso no certame.
+        \item \strong{VALOR_ESTIMADO} coluna do tipo \code{numeric} correspondente ao valor estimado para o objeto ou
+        serviço sendo licitado. Podera assumir o valor NA caso tal informacao nai esteja disponivel.
+        \item \strong{VALOR_HOMOLOGADO} coluna do tipo \code{numeric} correspondente ao valor homologado da proposta
+        vencedora para o fornecimento do objeto ou serviço sendo licitado. Podera assumir o valor NA caso tal
+        informacao nai esteja disponivel.
+        }}
+
+\item{considerar_desconto}{parametro do tipo \code{logical} indicando se o desconto obtido (diferenca entre o valor
+homologado e o valor estimado) devera ser levado em consideracao na atribuicao dos pesos das relacoes perdedor-vencedor.
+Por padrao este parametro tem valor \code{TRUE}}
 }
 \value{
 objeto do tipo environment, contendo os seguintes objetos:
 \itemize{
-        \item \strong{mercados} objeto do tipo \code{community} contendo todos as comunidades (mercados) obtidas a partir do grafo \code{grLicitacoes};
+        \item \strong{cmMercados} objeto do tipo \code{community} contendo todos as comunidades (mercados) obtidas a partir do grafo \code{grLicitacoes};
         \item \strong{grMercadosRisco} grafo do tipo \code{igraph} contendo os mercados de risco extraidos do grafo \code{grLicitacoes};
         \item \strong{vcMercadosRisco} vetor do tipo \code{numeric()} contendo os identificadores dos mercados considerados de risco;
         \item \strong{vcEmpresasRisco} vetor do tipo \code{numeric()} contendo os identificadores dos mercados de risco a que pertencem as empresas
               consideradas suspeitas de praticarem acoes colusivas. As empresas sao identificadas pelo atributo \code{names}.
-         }
+        \item \strong{dfResultados} objeto do tipo \code{data.frame} contendo os contratos considerados como suspeitos.
+        }
 }
 \description{
 Identifica potencias mercados de risco de praticas colusivas a partir de grafo de licitacoes
