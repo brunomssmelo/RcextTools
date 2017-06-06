@@ -2,3 +2,10 @@
 
 export(rcextCriaGrafoLic)
 export(rcextRiscoAcaoColusiva)
+importFrom(data.table,data.table)
+importFrom(igraph,delete.vertices)
+importFrom(igraph,induced.subgraph)
+importFrom(igraph,membership)
+importFrom(igraph,page.rank)
+importFrom(sqldf,sqldf)
+importFrom(stats,complete.cases)

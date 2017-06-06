@@ -29,7 +29,7 @@ rcextCriaGrafoLic(dados, tipo_retorno = 0, considerar_desconto = T)
          (grLicitacoes) e um \code{data.frame} (dfLicitacoes) a partir do qual o mesmo foi criado. E o valor padrao;
         \item 1 retorna um objeto do tipo \code{igraph} contendo um grafo direcionado de vencedores e participantes
          de licitacoes;
-        \item 2 retorna um objeto do tipo \code{data.frame} a partir do qual poderá ser criado um grafo
+        \item 2 retorna um objeto do tipo \code{data.frame} a partir do qual podera ser criado um grafo
          por meio da funcao \code{igraph::graph.data.frame()}
          }}
 

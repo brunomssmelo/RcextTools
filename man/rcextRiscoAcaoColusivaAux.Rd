@@ -29,7 +29,7 @@ grafoLic <- rcextAcaoColusivaLic(grLicitacoes)
 }
 }
 \seealso{
-\code{igraph}
+\code{igraph}#' @importFrom igraph walktrap.community
 }
 \author{
 Bruno M. S. S. Melo

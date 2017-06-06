@@ -32,10 +32,16 @@
 #' grafoLic <- rcextAcaoColusivaLic(grLicitacoes)
 #' }
 #' @seealso \code{igraph}
+#' @importFrom stats complete.cases
+#' @importFrom data.table data.table
 #' @export
 rcextRiscoAcaoColusiva <- function(dados, considerar_desconto = F) {
 
-  library(data.table)
+  CNPJ = NULL
+  MERCADO_ATUACAO = NULL
+  VALOR_HOMOLOGADO = NULL
+  VENCEDOR = NULL
+
   dados <- data.table(dados)
 
   # Geracao do grafo para ser analisado

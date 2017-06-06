@@ -14,7 +14,11 @@
 #' \dontrun{
 #' grafoLic <- rcextAcaoColusivaLic(grLicitacoes)
 #' }
-#' @seealso \code{igraph}
+#' @seealso \code{igraph}#' @importFrom igraph walktrap.community
+#' @importFrom igraph membership
+#' @importFrom igraph induced.subgraph
+#' @importFrom igraph page.rank
+#' @importFrom igraph delete.vertices
 rcextRiscoAcaoColusivaAux <- function(grLicitacoes) {
 
   e <- new.env(parent = emptyenv())
