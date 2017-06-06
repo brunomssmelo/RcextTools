@@ -2,7 +2,7 @@
 % Please edit documentation in R/rcextRiscoAcaoColusiva.R
 \name{rcextRiscoAcaoColusiva}
 \alias{rcextRiscoAcaoColusiva}
-\title{Identifica potencias mercados de risco de praticas colusivas a partir de grafo de licitacoes}
+\title{Identifica potenciais mercados de risco de praticas colusivas a partir de grafo de licitacoes}
 \usage{
 rcextRiscoAcaoColusiva(dados, considerar_desconto = F)
 }
@@ -39,7 +39,7 @@ objeto do tipo environment, contendo os seguintes objetos:
         }
 }
 \description{
-Identifica potencias mercados de risco de praticas colusivas a partir de grafo de licitacoes
+Identifica potenciais mercados de risco de praticas colusivas a partir de grafo de licitacoes
 }
 \examples{
 \dontrun{
