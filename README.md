@@ -40,7 +40,7 @@ dtDados <- data.frame(
   stringsAsFactors = F
 )
 
-casosSuspeitos <- rcextRiscoAcaoColusiva(dtDados)
+casosSuspeitos <- rodizioIdentificaSituacoesSuspeitas(dtDados)
 ```
 
     ## Loading required package: tcltk

@@ -29,14 +29,38 @@
 #' @author Bruno M. S. S. Melo
 #' @examples
 #' \dontrun{
-#' grafoLic <- rcextAcaoColusivaLic(grLicitacoes)
+#'
+#'  # carrega dados de licitacoes da base fornecida pelo pacote RcextTools
+#'  data("part_lic")
+#'
+#'  dtDados <- part_lic[!is.na(part_lic$COD_LICITACAO),]
+#'
+#'  dtDados <- data.frame(
+#'    CNPJ = dtDados$CNPJCPF_FORNECEDORES,
+#'    ID_LICITACAO = dtDados$COD_LICITACAO,
+#'    ID_ITEM = dtDados$ID_ITEM,
+#'    VENCEDOR = ifelse(dtDados$VENCEDOR == 'S', T, F),
+#'    VALOR_ESTIMADO = NA,
+#'    VALOR_HOMOLOGADO = as.numeric(dtDados$VALOR_FINAL),
+#'    DESC_OBJETO = dtDados$RESUMO_OBJETO,
+#'    stringsAsFactors = F
+#'  )
+#'
+#'  casosSuspeitos <- rodizioIdentificaSituacoesSuspeitas(dtDados)
+#'
+#'  # imprime dataframe com resultados
+#'  print(casosSuspeitos)
+#'
+#'  # plota grafo
+#'  plot(casosSuspeitos)
 #' }
 #' @seealso \code{igraph}
 #' @importFrom stats complete.cases
 #' @importFrom data.table data.table
 #' @export
-rcextRiscoAcaoColusiva <- function(dados, considerar_desconto = F) {
+rodizioIdentificaSituacoesSuspeitas <- function(dados, considerar_desconto = F) {
 
+  # para passar nos checks do CRAN:
   CNPJ = NULL
   MERCADO_ATUACAO = NULL
   VALOR_HOMOLOGADO = NULL
@@ -45,25 +69,15 @@ rcextRiscoAcaoColusiva <- function(dados, considerar_desconto = F) {
   dados <- data.table(dados)
 
   # Geracao do grafo para ser analisado
-  grafo <- rcextCriaGrafoLic(dados, 0, considerar_desconto)
+  grafo <- rodizioCriaGrafoLic(dados, 0, considerar_desconto)
 
   # Identificacao de empresas e "mercados" de maior risco de acao colusiva
-  e <- rcextRiscoAcaoColusivaAux(grafo$grLicitacoes)
+  e <- rodizioMetodologiaGrafoPageRank(grafo$grLicitacoes)
 
-  # Funcao auxiliar para converter valor em moeda
-  numericoParaTextoMoeda <- function(x){
-    paste0("R$",
-           formatC(as.numeric(x),
-                   format="f",
-                   digits=2,
-                   big.mark=".",
-                   decimal.mark = ",")
-    )
-  }
-
-  # Ordena resultados por mercado de atuacao e materialidade (valor homologado)
+  # Mantem apenas as empresas vencedoras
   dtResultados <- dados[VENCEDOR == T & CNPJ %in% names(e$vcEmpresasRisco),]
 
+  # Inclui informacao de mercado
   dtResultados$MERCADO_ATUACAO <- apply(
     X = dtResultados,
     MARGIN = 1,
@@ -75,11 +89,36 @@ rcextRiscoAcaoColusiva <- function(dados, considerar_desconto = F) {
   # Ordena resultados por mercado de atuação e materialidade
   dtResultados <- dtResultados[order(MERCADO_ATUACAO,-VALOR_HOMOLOGADO)]
 
+
+  # Inclui coluna com valor homologado em formato texto do tipo moeda
+  numericoParaTextoMoeda <- function(x){
+    paste0("R$",
+           formatC(as.numeric(x),
+                   format="f",
+                   digits=2,
+                   big.mark=".",
+                   decimal.mark = ",")
+    )
+  }
+
   dtResultados$TEXTO_VALOR_HOMOLOGADO <- NA_character_
   dtResultados[!is.na(VALOR_HOMOLOGADO),]$TEXTO_VALOR_HOMOLOGADO <- numericoParaTextoMoeda(dtResultados$VALOR_HOMOLOGADO)
   dtResultados <- unique(dtResultados)
 
-  e$dtResultados <- dtResultados
+  dtResultados$PROB_FAVORECIMENTO_NO_MERCADO <- 0
+  for(m in names(e$lsPageRanks)){
+    vecPageRank <- eval(expr = parse(text = paste0("e$lsPageRanks$`",m,"`")))
+    for(pr in 1:length(vecPageRank)){
+      dtResultados[MERCADO_ATUACAO == m & CNPJ == names(vecPageRank)[pr]]$PROB_FAVORECIMENTO_NO_MERCADO <- vecPageRank[pr]
+    }
+  }
 
-  return(e)
+  obj <- list(
+    mercados.tabela = dtResultados,
+    mercados.grafos = e$grMercadosRisco
+  )
+
+  class(obj) <- "TipologiaRodizio"
+
+  return(obj)
 }

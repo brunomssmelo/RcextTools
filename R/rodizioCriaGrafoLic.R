@@ -44,13 +44,14 @@
 #' @author Bruno M. S. S. Melo
 #' @examples
 #' \dontrun{
-#' grafoLic <- rcextCriaGrafoLic(dados = dfDadosLic, tipo_retorno = 0, considerar_desconto = F)
+#' grafoLic <- rodizioCriaGrafoLic(dados = dfDadosLic, tipo_retorno = 0, considerar_desconto = F)
 #' }
 #' @seealso \code{igraph}
 #' @importFrom sqldf sqldf
 #' @export
-rcextCriaGrafoLic <- function(dados, tipo_retorno = 0, considerar_desconto = T) {
+rodizioCriaGrafoLic <- function(dados, tipo_retorno = 0, considerar_desconto = T) {
 
+  # para passar nos checks do CRAN:
   VENCEDOR = NULL
 
   if ((!is.numeric(tipo_retorno)) | (!(tipo_retorno %in% 0:2))) {
