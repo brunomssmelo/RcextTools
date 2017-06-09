@@ -17,14 +17,15 @@
 #' @param considerar_desconto parametro do tipo \code{logical} indicando se o desconto obtido (diferenca entre o valor
 #' homologado e o valor estimado) devera ser levado em consideracao na atribuicao dos pesos das relacoes perdedor-vencedor.
 #' Por padrao este parametro tem valor \code{TRUE}
-#' @return objeto do tipo environment, contendo os seguintes objetos:
+#' @return objeto S3 da classe \code{TipologiaRodizio}, contendo os seguintes atributos:
 #' \itemize{
-#'         \item \strong{cmMercados} objeto do tipo \code{community} contendo todos as comunidades (mercados) obtidas a partir do grafo \code{grLicitacoes};
-#'         \item \strong{grMercadosRisco} grafo do tipo \code{igraph} contendo os mercados de risco extraidos do grafo \code{grLicitacoes};
-#'         \item \strong{vcMercadosRisco} vetor do tipo \code{numeric()} contendo os identificadores dos mercados considerados de risco;
-#'         \item \strong{vcEmpresasRisco} vetor do tipo \code{numeric()} contendo os identificadores dos mercados de risco a que pertencem as empresas
-#'               consideradas suspeitas de praticarem acoes colusivas. As empresas sao identificadas pelo atributo \code{names}.
-#'         \item \strong{dfResultados} objeto do tipo \code{data.frame} contendo os contratos considerados como suspeitos.
+#'         \item \strong{mercados} objeto do tipo \code{igraph::communities} contendo todos as comunidades (mercados) obtidas a partir do grafo \code{grLicitacoes};
+#'         \item \strong{grafo} grafo do tipo \code{igraph} contendo os mercados de risco presentes no grafo \code{mercados};
+#'         \item \strong{tabela} objeto do tipo \code{data.frame} contendo informacoes dos contratos considerados como suspeitos. Dentre os campos nela presentes, destacamos:
+#'         \itemize{
+#'                 \item \strong{MERCADO_ATUACAO} identificador do mercado a que o contrato pertence, relacionando-o ao atributo \code{mercados}; e
+#'                 \item \strong{PROB_FAVORECIMENTO_NO_MERCADO} probabilidade, estimada com base no PageRank intracomunitario, de o contrato ter sido fruto de alguma acao colusiva naquele mercado especifico.
+#'                 }
 #'         }
 #' @author Bruno M. S. S. Melo
 #' @examples
@@ -69,12 +70,12 @@ rodizioIdentificaSituacoesSuspeitas <- function(dados, considerar_desconto = F) 
   dados <- data.table(dados)
 
   # Geracao do grafo para ser analisado
-  grafo <- rodizioCriaGrafoLic(dados, 0, considerar_desconto)
+  grafo <- rodizioCriaGrafoLic(dados)
 
   # Identificacao de empresas e "mercados" de maior risco de acao colusiva
   e <- rodizioMetodologiaGrafoPageRank(grafo$grLicitacoes)
 
-  # Mantem apenas as empresas vencedoras
+  # Mantem apenas as empresas suspeitas
   dtResultados <- dados[VENCEDOR == T & CNPJ %in% names(e$vcEmpresasRisco),]
 
   # Inclui informacao de mercado
@@ -102,8 +103,8 @@ rodizioIdentificaSituacoesSuspeitas <- function(dados, considerar_desconto = F) 
   }
 
   dtResultados$TEXTO_VALOR_HOMOLOGADO <- NA_character_
-  dtResultados[!is.na(VALOR_HOMOLOGADO),]$TEXTO_VALOR_HOMOLOGADO <- numericoParaTextoMoeda(dtResultados$VALOR_HOMOLOGADO)
-  dtResultados <- unique(dtResultados)
+  dtResultados$TEXTO_VALOR_HOMOLOGADO <- numericoParaTextoMoeda(dtResultados$VALOR_HOMOLOGADO)
+  dtResultados <- unique(dtResultados[!is.na(VALOR_HOMOLOGADO),])
 
   dtResultados$PROB_FAVORECIMENTO_NO_MERCADO <- 0
   for(m in names(e$lsPageRanks)){
@@ -114,8 +115,9 @@ rodizioIdentificaSituacoesSuspeitas <- function(dados, considerar_desconto = F) 
   }
 
   obj <- list(
-    mercados.tabela = dtResultados,
-    mercados.grafos = e$grMercadosRisco
+    tabela = dtResultados,
+    grafo = e$grMercadosRisco,
+    mercados = e$cmMercados
   )
 
   class(obj) <- "TipologiaRodizio"

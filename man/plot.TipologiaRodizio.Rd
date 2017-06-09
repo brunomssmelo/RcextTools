@@ -4,10 +4,15 @@
 \alias{plot.TipologiaRodizio}
 \title{Metodo S3 que plota na tela uma representacao visual do grafo do tipo `igraph` contido no objeto da classe `TipologiaRodizio`}
 \usage{
-\method{plot}{TipologiaRodizio}(x)
+\method{plot}{TipologiaRodizio}(x, ...)
+}
+\arguments{
+\item{x}{objeto da classe `TipologiaRodizio`.}
+
+\item{...}{eventuais parametros adicionais.}
 }
 \description{
-Metodo S3 que plota na tela uma representacao visual do grafo do tipo `igraph` contido no objeto da classe `TipologiaRodizio`
+Os diferentes agrupamentos representam empresas suspeitas de praticarem alguma acao colusiva num determinado mercado. As arestas apontam na direcao de um perdedor para um vencedor de licitacao. Empresas sao sempre perdedoras sao representadas por quadrados cinzas.
 }
 \examples{
 \dontrun{

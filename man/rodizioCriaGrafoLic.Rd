@@ -4,7 +4,8 @@
 \alias{rodizioCriaGrafoLic}
 \title{Cria um grafo de vencedores e participantes de licitacoes publicas}
 \usage{
-rodizioCriaGrafoLic(dados, tipo_retorno = 0, considerar_desconto = T)
+rodizioCriaGrafoLic(dados, tipo_retorno = 0, agregar_arestas = T,
+  considerar_desconto = F)
 }
 \arguments{
 \item{dados}{data.frame contendo as seguintes colunas:
@@ -33,9 +34,12 @@ rodizioCriaGrafoLic(dados, tipo_retorno = 0, considerar_desconto = T)
          por meio da funcao \code{igraph::graph.data.frame()}
          }}
 
+\item{agregar_arestas}{parametro do tipo \code{logical} indicando se arestas repetidas deverao ser agregadas numa unica
+aresta cujo peso seja as soma dos pesos individuais. Por padrao este parametro tem valor \code{TRUE}.}
+
 \item{considerar_desconto}{parametro do tipo \code{logical} indicando se o desconto obtido (diferenca entre o valor
 homologado e o valor estimado) devera ser levado em consideracao na atribuicao dos pesos das relacoes perdedor-vencedor.
-Por padrao este parametro tem valor \code{TRUE}}
+Por padrao este parametro tem valor \code{FALSE}.}
 }
 \value{
 o retorno depende do valor especificado para o parâmetro \code{tipo_retorno}.

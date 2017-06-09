@@ -1,7 +1,7 @@
 Package: RcextTools
 Type: Package
 Title: Analytical Procedures in Support of Brazilian Public Sector External Auditing
-Version: 0.1.0
+Version: 0.1.1
 Author: Bruno M. S. S. Melo
 Maintainer: Bruno Melo <ctbrunomelo@gmail.com>
 Description: Set of analytical procedures based on advanced data analysis in support of Brazil's public sector external control activity.

@@ -23,6 +23,9 @@ rodizioMetodologiaGrafoPageRank <- function(grLicitacoes) {
 
   e <- new.env(parent = emptyenv())
 
+  # extrai informacoes das arestas do grafo para um data.frame
+  dfArestas <- igraph::get.data.frame(grLicitacoes)
+
   # identifica "comunidades" (mercados)
   wc <- igraph::walktrap.community(grLicitacoes)
 
@@ -55,7 +58,7 @@ rodizioMetodologiaGrafoPageRank <- function(grLicitacoes) {
   # selecao de empresas a partir do page rank intra-comunitario
   sapply(sort(unique(igraph::membership(wc))), function(g) {
 
-    # calcula page rank intracomunitario
+    # calcula page rank intra-comunitario
     pr <- calculaPageRankIntraComunitario(g, wc, grLicitacoes)
 
     # determina o rearranjo necessario para ordenar as empresas em ordem decrescente de page rank
@@ -76,7 +79,9 @@ rodizioMetodologiaGrafoPageRank <- function(grLicitacoes) {
     # ... nem ser inferior a 3
     min_emp <- 3
 
-    if ((sum(selec_emp) <= max_emp) & (sum(selec_emp) >= min_emp)) {
+    if ((sum(empresas_comunidade_g[selec_emp] %in% dfArestas$to)>1) & # caso nenhuma empresa escolhida tenha sido vencedora, descarta a comunidade
+        (sum(selec_emp) <= max_emp) &
+        (sum(selec_emp) >= min_emp)) {
 
       # insere a comunidade (mercado) na listagem de mercados de risco
       e$vcMercadosRisco <- c(e$vcMercadosRisco, g)

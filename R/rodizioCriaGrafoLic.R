@@ -37,9 +37,11 @@
 #'         \item 2 retorna um objeto do tipo \code{data.frame} a partir do qual podera ser criado um grafo
 #'          por meio da funcao \code{igraph::graph.data.frame()}
 #'          }
+#' @param agregar_arestas parametro do tipo \code{logical} indicando se arestas repetidas deverao ser agregadas numa unica
+#' aresta cujo peso seja as soma dos pesos individuais. Por padrao este parametro tem valor \code{TRUE}.
 #' @param considerar_desconto parametro do tipo \code{logical} indicando se o desconto obtido (diferenca entre o valor
 #' homologado e o valor estimado) devera ser levado em consideracao na atribuicao dos pesos das relacoes perdedor-vencedor.
-#' Por padrao este parametro tem valor \code{TRUE}
+#' Por padrao este parametro tem valor \code{FALSE}.
 #' @return o retorno depende do valor especificado para o parâmetro \code{tipo_retorno}.
 #' @author Bruno M. S. S. Melo
 #' @examples
@@ -49,7 +51,9 @@
 #' @seealso \code{igraph}
 #' @importFrom sqldf sqldf
 #' @export
-rodizioCriaGrafoLic <- function(dados, tipo_retorno = 0, considerar_desconto = T) {
+rodizioCriaGrafoLic <- function(dados, tipo_retorno = 0, agregar_arestas = T, considerar_desconto = F) {
+
+  library("data.table")
 
   # para passar nos checks do CRAN:
   VENCEDOR = NULL
@@ -64,21 +68,23 @@ rodizioCriaGrafoLic <- function(dados, tipo_retorno = 0, considerar_desconto = T
   envGrafo <- new.env(parent = emptyenv())
 
   suppressWarnings(
-    envGrafo$dfLicitacoes <- sqldf::sqldf(
-      'SELECT DISTINCT
-          dfPERDEDOR.CNPJ CNPJ_PERDEDOR,
-          dfVENCEDOR.CNPJ CNPJ_VENCEDOR,
-          dfVENCEDOR.ID_LICITACAO,
-          dfVENCEDOR.ID_ITEM,
-          dfVENCEDOR.VALOR_ESTIMADO,
-          dfVENCEDOR.VALOR_HOMOLOGADO
-      FROM
-          dfVENCEDOR
-      INNER JOIN
-          dfPERDEDOR
-            ON (dfVENCEDOR.ID_LICITACAO = dfPERDEDOR.ID_LICITACAO
-                AND dfVENCEDOR.ID_ITEM = dfPERDEDOR.ID_ITEM
-                AND dfVENCEDOR.CNPJ != dfPERDEDOR.CNPJ )'
+    envGrafo$dfLicitacoes <- data.table::data.table(
+      sqldf::sqldf(
+        'SELECT DISTINCT
+            dfPERDEDOR.CNPJ CNPJ_PERDEDOR,
+            dfVENCEDOR.CNPJ CNPJ_VENCEDOR,
+            dfVENCEDOR.ID_LICITACAO,
+            dfVENCEDOR.ID_ITEM,
+            dfVENCEDOR.VALOR_ESTIMADO,
+            dfVENCEDOR.VALOR_HOMOLOGADO
+        FROM
+            dfVENCEDOR
+        INNER JOIN
+            dfPERDEDOR
+              ON (dfVENCEDOR.ID_LICITACAO = dfPERDEDOR.ID_LICITACAO
+                  AND dfVENCEDOR.ID_ITEM = dfPERDEDOR.ID_ITEM
+                  AND dfVENCEDOR.CNPJ != dfPERDEDOR.CNPJ )'
+      )
     )
   )
 
@@ -97,16 +103,26 @@ rodizioCriaGrafoLic <- function(dados, tipo_retorno = 0, considerar_desconto = T
     # envGrafo$dfLicitacoes <- envGrafo$dfLicitacoes[envGrafo$dfLicitacoes$PESO_RELACAO < (Q3 + 1.5*(Q3-Q1)),]
 
   } else{
+    envGrafo$dfLicitacoes[,ID_ITEM:=NULL]
+    envGrafo$dfLicitacoes[,VALOR_ESTIMADO:=NULL]
+    envGrafo$dfLicitacoes[,VALOR_HOMOLOGADO:=NULL]
+    envGrafo$dfLicitacoes <- unique(envGrafo$dfLicitacoes)
     envGrafo$dfLicitacoes$PESO_RELACAO <- 1
   }
 
-  envGrafo$grLicitacoes <- igraph::graph.data.frame(
-    data.frame(
-      from = envGrafo$dfLicitacoes[, "CNPJ_PERDEDOR"],
-      to = envGrafo$dfLicitacoes[, "CNPJ_VENCEDOR"],
-      weight = envGrafo$dfLicitacoes[, "PESO_RELACAO"]
-    )
+  dtGrafoLicitacoes <- data.table(
+    from = envGrafo$dfLicitacoes[, CNPJ_PERDEDOR],
+    to = envGrafo$dfLicitacoes[, CNPJ_VENCEDOR],
+    weight = envGrafo$dfLicitacoes[, PESO_RELACAO],
+    stringsAsFactors = FALSE
   )
+
+  if( agregar_arestas ){
+    dtGrafoLicitacoes <- dtGrafoLicitacoes[,.(weight = sum(weight)), by = .(from, to)]
+  }
+
+  envGrafo$grLicitacoes <- igraph::graph.data.frame(dtGrafoLicitacoes)
+
 
   return(envGrafo)
 }

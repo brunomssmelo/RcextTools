@@ -4,7 +4,12 @@
 \alias{print.TipologiaRodizio}
 \title{Metodo S3 que imprime na tela um data.frame que representa um objeto da classe `TipologiaRodizio`}
 \usage{
-\method{print}{TipologiaRodizio}(x)
+\method{print}{TipologiaRodizio}(x, ...)
+}
+\arguments{
+\item{x}{objeto da classe `TipologiaRodizio`}
+
+\item{...}{eventuais parametros adicionais.}
 }
 \description{
 Metodo S3 que imprime na tela um data.frame que representa um objeto da classe `TipologiaRodizio`

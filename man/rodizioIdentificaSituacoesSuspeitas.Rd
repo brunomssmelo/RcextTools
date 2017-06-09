@@ -28,14 +28,15 @@ homologado e o valor estimado) devera ser levado em consideracao na atribuicao d
 Por padrao este parametro tem valor \code{TRUE}}
 }
 \value{
-objeto do tipo environment, contendo os seguintes objetos:
+objeto S3 da classe \code{TipologiaRodizio}, contendo os seguintes atributos:
 \itemize{
-        \item \strong{cmMercados} objeto do tipo \code{community} contendo todos as comunidades (mercados) obtidas a partir do grafo \code{grLicitacoes};
-        \item \strong{grMercadosRisco} grafo do tipo \code{igraph} contendo os mercados de risco extraidos do grafo \code{grLicitacoes};
-        \item \strong{vcMercadosRisco} vetor do tipo \code{numeric()} contendo os identificadores dos mercados considerados de risco;
-        \item \strong{vcEmpresasRisco} vetor do tipo \code{numeric()} contendo os identificadores dos mercados de risco a que pertencem as empresas
-              consideradas suspeitas de praticarem acoes colusivas. As empresas sao identificadas pelo atributo \code{names}.
-        \item \strong{dfResultados} objeto do tipo \code{data.frame} contendo os contratos considerados como suspeitos.
+        \item \strong{mercados} objeto do tipo \code{igraph::communities} contendo todos as comunidades (mercados) obtidas a partir do grafo \code{grLicitacoes};
+        \item \strong{grafo} grafo do tipo \code{igraph} contendo os mercados de risco presentes no grafo \code{mercados};
+        \item \strong{tabela} objeto do tipo \code{data.frame} contendo informacoes dos contratos considerados como suspeitos. Dentre os campos nela presentes, destacamos:
+        \itemize{
+                \item \strong{MERCADO_ATUACAO} identificador do mercado a que o contrato pertence, relacionando-o ao atributo \code{mercados}; e
+                \item \strong{PROB_FAVORECIMENTO_NO_MERCADO} probabilidade, estimada com base no PageRank intracomunitario, de o contrato ter sido fruto de alguma acao colusiva naquele mercado especifico.
+                }
         }
 }
 \description{
