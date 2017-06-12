@@ -4,7 +4,7 @@
 #' @param ...	eventuais parametros adicionais.
 #' @examples
 #' \dontrun{
-#' casosSuspeitos <- rodizioIdentificaSituacoesSuspeitas(dados)
+#' casosSuspeitos <- TipologiaRodizio(dados)
 #' print(casosSuspeitos)
 #' }
 #' @export

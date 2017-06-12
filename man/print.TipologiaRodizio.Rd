@@ -16,7 +16,7 @@ Metodo S3 que imprime na tela um data.frame que representa um objeto da classe `
 }
 \examples{
 \dontrun{
-casosSuspeitos <- rodizioIdentificaSituacoesSuspeitas(dados)
+casosSuspeitos <- TipologiaRodizio(dados)
 print(casosSuspeitos)
 }
 }

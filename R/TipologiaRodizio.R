@@ -14,7 +14,7 @@
 #'         vencedora para o fornecimento do objeto ou serviço sendo licitado. Podera assumir o valor NA caso tal
 #'         informacao nai esteja disponivel.
 #'         }
-#' @param considerar_desconto parametro do tipo \code{logical} indicando se o desconto obtido (diferenca entre o valor
+#' @param considerarDesconto parametro do tipo \code{logical} indicando se o desconto obtido (diferenca entre o valor
 #' homologado e o valor estimado) devera ser levado em consideracao na atribuicao dos pesos das relacoes perdedor-vencedor.
 #' Por padrao este parametro tem valor \code{TRUE}
 #' @return objeto S3 da classe \code{TipologiaRodizio}, contendo os seguintes atributos:
@@ -47,7 +47,7 @@
 #'    stringsAsFactors = F
 #'  )
 #'
-#'  casosSuspeitos <- rodizioIdentificaSituacoesSuspeitas(dtDados)
+#'  casosSuspeitos <- TipologiaRodizio(dtDados)
 #'
 #'  # imprime dataframe com resultados
 #'  print(casosSuspeitos)
@@ -59,7 +59,7 @@
 #' @importFrom stats complete.cases
 #' @importFrom data.table data.table
 #' @export
-rodizioIdentificaSituacoesSuspeitas <- function(dados, considerar_desconto = F) {
+TipologiaRodizio <- function(dados, considerarDesconto = F) {
 
   # para passar nos checks do CRAN:
   CNPJ = NULL
@@ -70,10 +70,10 @@ rodizioIdentificaSituacoesSuspeitas <- function(dados, considerar_desconto = F) 
   dados <- data.table(dados)
 
   # Geracao do grafo para ser analisado
-  grafo <- rodizioCriaGrafoLic(dados)
+  grafo <- TipologiaRodizioCriaGrafo(dados)
 
   # Identificacao de empresas e "mercados" de maior risco de acao colusiva
-  e <- rodizioMetodologiaGrafoPageRank(grafo$grLicitacoes)
+  e <- TipologiaRodizioMetodologiaGrafo(grafo$grLicitacoes)
 
   # Mantem apenas as empresas suspeitas
   dtResultados <- dados[VENCEDOR == T & CNPJ %in% names(e$vcEmpresasRisco),]

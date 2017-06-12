@@ -16,7 +16,7 @@ Os diferentes agrupamentos representam empresas suspeitas de praticarem alguma a
 }
 \examples{
 \dontrun{
-casosSuspeitos <- rodizioIdentificaSituacoesSuspeitas(dados)
+casosSuspeitos <- TipologiaRodizio(dados)
 plot(casosSuspeitos)
 }
 }

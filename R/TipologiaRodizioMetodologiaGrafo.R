@@ -12,14 +12,14 @@
 #' @author Bruno M. S. S. Melo
 #' @examples
 #' \dontrun{
-#' grafoLic <- rodizioMetodologiaGrafoPageRank(grLicitacoes)
+#' grafoLic <- TipologiaRodizioMetodologiaGrafo(grLicitacoes)
 #' }
 #' @seealso \code{igraph}#' @importFrom igraph walktrap.community
 #' @importFrom igraph membership
 #' @importFrom igraph induced.subgraph
 #' @importFrom igraph page.rank
 #' @importFrom igraph delete.vertices
-rodizioMetodologiaGrafoPageRank <- function(grLicitacoes) {
+TipologiaRodizioMetodologiaGrafo <- function(grLicitacoes) {
 
   e <- new.env(parent = emptyenv())
 

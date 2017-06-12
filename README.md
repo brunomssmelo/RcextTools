@@ -53,7 +53,7 @@ dtDados <- data.frame(
   stringsAsFactors = F
 )
 
-casosSuspeitos <- rodizioIdentificaSituacoesSuspeitas(dtDados)
+casosSuspeitos <- TipologiaRodizio(dtDados)
 ```
 
     ## Loading required package: tcltk

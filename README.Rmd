@@ -57,7 +57,7 @@ dtDados <- data.frame(
   stringsAsFactors = F
 )
 
-casosSuspeitos <- rodizioIdentificaSituacoesSuspeitas(dtDados)
+casosSuspeitos <- TipologiaRodizio(dtDados)
 ```
 
 ### Exibição dos casos suspeitos

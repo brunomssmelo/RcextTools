@@ -46,83 +46,12 @@
 #' @author Bruno M. S. S. Melo
 #' @examples
 #' \dontrun{
-#' grafoLic <- rodizioCriaGrafoLic(dados = dfDadosLic, tipo_retorno = 0, considerar_desconto = F)
+#' grafoLic <- rcextCriaGrafoLic(dados = dfDadosLic, tipo_retorno = 0, considerar_desconto = F)
 #' }
 #' @seealso \code{igraph}
 #' @importFrom sqldf sqldf
 #' @export
-rodizioCriaGrafoLic <- function(dados, tipo_retorno = 0, agregar_arestas = T, considerar_desconto = F) {
-
-  library("data.table")
-
-  # para passar nos checks do CRAN:
-  VENCEDOR = NULL
-
-  if ((!is.numeric(tipo_retorno)) | (!(tipo_retorno %in% 0:2))) {
-    tipo_retorno <- 0
-  }
-
-  dfPERDEDOR <- subset(x = dados, VENCEDOR == F)
-  dfVENCEDOR <- subset(x = dados, VENCEDOR == T)
-
-  envGrafo <- new.env(parent = emptyenv())
-
-  suppressWarnings(
-    envGrafo$dfLicitacoes <- data.table::data.table(
-      sqldf::sqldf(
-        'SELECT DISTINCT
-            dfPERDEDOR.CNPJ CNPJ_PERDEDOR,
-            dfVENCEDOR.CNPJ CNPJ_VENCEDOR,
-            dfVENCEDOR.ID_LICITACAO,
-            dfVENCEDOR.ID_ITEM,
-            dfVENCEDOR.VALOR_ESTIMADO,
-            dfVENCEDOR.VALOR_HOMOLOGADO
-        FROM
-            dfVENCEDOR
-        INNER JOIN
-            dfPERDEDOR
-              ON (dfVENCEDOR.ID_LICITACAO = dfPERDEDOR.ID_LICITACAO
-                  AND dfVENCEDOR.ID_ITEM = dfPERDEDOR.ID_ITEM
-                  AND dfVENCEDOR.CNPJ != dfPERDEDOR.CNPJ )'
-      )
-    )
-  )
-
-  if (considerar_desconto){
-    # retira registros que nao possuam valores estimados e valores homologados
-    envGrafo$dfLicitacoes <- envGrafo$dfLicitacoes[complete.cases(envGrafo$dfLicitacoes[, c("VALOR_ESTIMADO", "VALOR_HOMOLOGADO")]),]
-
-    # calcula peso da relacao perdedor-vencedor
-    envGrafo$dfLicitacoes$PESO_RELACAO <- envGrafo$dfLicitacoes$VALOR_HOMOLOGADO/envGrafo$dfLicitacoes$VALOR_ESTIMADO
-
-    # Melhor fazer isso mercado a mercado (noutro momento)
-    # # retira registros cujos pesos calculados sejam outliers
-    # tukey <- fivenum(envGrafo$dfLicitacoes$PESO_RELACAO)
-    # Q3 <- tukey[4]
-    # Q1 <- tukey[2]
-    # envGrafo$dfLicitacoes <- envGrafo$dfLicitacoes[envGrafo$dfLicitacoes$PESO_RELACAO < (Q3 + 1.5*(Q3-Q1)),]
-
-  } else{
-    envGrafo$dfLicitacoes[,ID_ITEM:=NULL]
-    envGrafo$dfLicitacoes[,VALOR_ESTIMADO:=NULL]
-    envGrafo$dfLicitacoes[,VALOR_HOMOLOGADO:=NULL]
-    envGrafo$dfLicitacoes <- unique(envGrafo$dfLicitacoes)
-    envGrafo$dfLicitacoes$PESO_RELACAO <- 1
-  }
-
-  dtGrafoLicitacoes <- data.table(
-    from = envGrafo$dfLicitacoes[, CNPJ_PERDEDOR],
-    to = envGrafo$dfLicitacoes[, CNPJ_VENCEDOR],
-    weight = envGrafo$dfLicitacoes[, PESO_RELACAO],
-    stringsAsFactors = FALSE
-  )
-
-  if( agregar_arestas ){
-    dtGrafoLicitacoes <- dtGrafoLicitacoes[,.(weight = sum(weight)), by = .(from, to)]
-  }
-
-  envGrafo$grLicitacoes <- igraph::graph.data.frame(dtGrafoLicitacoes)
-
-
-  return(envGrafo)
+rcextCriaGrafoLic <- function(dados, tipo_retorno = 0, agregar_arestas = T, considerar_desconto = F) {
+  .Deprecated('TipologiaRodizioCriaGrafo')
+  TipologiaRodizioCriaGrafo(dados, tipo_retorno, considerar_desconto)
 }
