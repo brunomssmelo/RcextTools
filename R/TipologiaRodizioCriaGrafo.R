@@ -50,13 +50,26 @@
 #' }
 #' @seealso \code{igraph}
 #' @importFrom sqldf sqldf
+#' @import data.table
 #' @export
 TipologiaRodizioCriaGrafo <- function(dados, tipoRetorno = 0, agregarArestas = T, considerarDesconto = F) {
 
-  library("data.table")
-
   # para passar nos checks do CRAN:
   VENCEDOR = NULL
+  . = NULL
+  `:=` = NULL
+  from = NULL
+  to = NULL
+  weight = NULL
+  VALOR_ESTIMADO = NULL
+  VALOR_HOMOLOGADO = NULL
+  PESO_RELACAO = NULL
+  CNPJ_PERDEDOR = NULL
+  CNPJ_VENCEDOR = NULL
+  PESO_RELACAO = NULL
+  ID_ITEM = NULL
+
+  #library("data.table")
 
   if ((!is.numeric(tipoRetorno)) | (!(tipoRetorno %in% 0:2))) {
     tipoRetorno <- 0

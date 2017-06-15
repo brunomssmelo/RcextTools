@@ -11,20 +11,23 @@
 #' @export
 plot.TipologiaRodizio <- function(x, ...){
 
-  # solving CRAN check issue
-  '%>%' <- NULL
-  library("visNetwork")
-  library("igraph")
-
-  dadosGrafo <- toVisNetworkData(x$grafo)
+  dadosGrafo <- visNetwork::toVisNetworkData(x$grafo)
   dadosGrafo$nodes$group <- sapply(dadosGrafo$nodes$id, FUN = function(n){
-    group <- x$tabela[CNPJ == n,]$MERCADO_ATUACAO[1]
+    group <- x$tabela[x$tabela$CNPJ == n,]$MERCADO_ATUACAO[1]
   })
   dadosGrafo$nodes[!complete.cases(dadosGrafo$nodes),]$group <- 0
 
-  visNetwork::visNetwork(nodes = dadosGrafo$nodes, edges = dadosGrafo$edges) %>%
-    visNetwork::visInteraction( navigationButtons = TRUE, multiselect = TRUE ) %>%
-    visNetwork::visOptions(nodesIdSelection = TRUE) %>%
-    visNetwork::visEdges(arrows = 'to') %>%
-    visNetwork::visGroups(groupname  = '0', color = 'grey', shape = "square")
+  # solving CRAN check issue:
+
+  # visNetwork::visNetwork(nodes = dadosGrafo$nodes, edges = dadosGrafo$edges) %>%
+  #   visNetwork::visInteraction( navigationButtons = TRUE, multiselect = TRUE ) %>%
+  #   visNetwork::visOptions(nodesIdSelection = TRUE) %>%
+  #   visNetwork::visEdges(arrows = 'to') %>%
+  #   visNetwork::visGroups(groupname  = '0', color = 'grey', shape = "square")
+
+  vn <- visNetwork::visNetwork(nodes = dadosGrafo$nodes, edges = dadosGrafo$edges)
+  vn <- visNetwork::visInteraction(vn, navigationButtons = TRUE, multiselect = TRUE )
+  vn <- visNetwork::visOptions(vn, nodesIdSelection = TRUE)
+  vn <- visNetwork::visEdges(vn, arrows = 'to')
+  visNetwork::visGroups(vn, groupname  = '0', color = 'grey', shape = "square")
 }

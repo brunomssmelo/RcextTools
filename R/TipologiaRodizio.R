@@ -57,7 +57,7 @@
 #' }
 #' @seealso \code{igraph}
 #' @importFrom stats complete.cases
-#' @importFrom data.table data.table
+#' @import data.table
 #' @export
 TipologiaRodizio <- function(dados, considerarDesconto = F) {
 

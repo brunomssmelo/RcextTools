@@ -15,10 +15,6 @@
 #' grafoLic <- rodizioMetodologiaGrafoPageRank(grLicitacoes)
 #' }
 #' @seealso \code{igraph}#' @importFrom igraph walktrap.community
-#' @importFrom igraph membership
-#' @importFrom igraph induced.subgraph
-#' @importFrom igraph page.rank
-#' @importFrom igraph delete.vertices
 rcextRiscoAcaoColusivaAux <- function(grLicitacoes) {
   .Deprecated("TipologiaRodizioMetodologiaGrafo")
   TipologiaRodizioMetodologiaGrafo(grLicitacoes)

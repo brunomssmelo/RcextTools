@@ -29,7 +29,7 @@ grafoLic <- TipologiaRodizioMetodologiaGrafo(grLicitacoes)
 }
 }
 \seealso{
-\code{igraph}#' @importFrom igraph walktrap.community
+\code{igraph}
 }
 \author{
 Bruno M. S. S. Melo
