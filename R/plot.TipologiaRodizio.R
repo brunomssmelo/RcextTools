@@ -17,7 +17,7 @@ plot.TipologiaRodizio <- function(x, ...){
   })
   dadosGrafo$nodes[!complete.cases(dadosGrafo$nodes),]$group <- 0
 
-  # solving CRAN check issue:
+  # o operador %>% foi removido para solucionar erro gerado pelo "CRAN check":
 
   # visNetwork::visNetwork(nodes = dadosGrafo$nodes, edges = dadosGrafo$edges) %>%
   #   visNetwork::visInteraction( navigationButtons = TRUE, multiselect = TRUE ) %>%
@@ -26,7 +26,6 @@ plot.TipologiaRodizio <- function(x, ...){
   #   visNetwork::visGroups(groupname  = '0', color = 'grey', shape = "square")
 
   vn <- visNetwork::visNetwork(nodes = dadosGrafo$nodes, edges = dadosGrafo$edges)
-  vn <- visNetwork::visInteraction(vn, navigationButtons = TRUE, multiselect = TRUE )
   vn <- visNetwork::visOptions(vn, nodesIdSelection = TRUE)
   vn <- visNetwork::visEdges(vn, arrows = 'to')
   visNetwork::visGroups(vn, groupname  = '0', color = 'grey', shape = "square")
